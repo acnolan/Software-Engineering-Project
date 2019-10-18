@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<meta charset="utf-8"/>
+<html>
+	<head>
+		<title>Quetzalcoatl Qalendar - Main Page</title>
+		<link rel="stylesheet" href="general.css"></link>
+		<link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i" rel="stylesheet"> 
+		<script src="general.js"></script>
+		<script src="mainpage.js"></script>
+		<style>
+			.content {
+				padding: 15px;
+				border: 1px solid #808080;
+				border-radius: 3px;
+				background-color: white;
+			}
+			.nstable input,select {
+				width: 125px;
+			}
+			table.schedt {
+				border-collapse: collapse;
+			}
+			table.schedt .th1 {
+				font-size: 150%;
+			}
+			table.schedt .th2 {
+				font-size: 125%;
+			}
+			table.schedt td {
+				padding: 10px 25px;
+			}
+			table.schedt tr:not(:first-child) td:first-child {
+				border-right: 1px solid #808080;
+			}
+			table.schedt tr:first-child td {
+				border-bottom: 1px solid #808080;
+				text-align: left;
+			}
+			table.schedt a {
+				display: block;
+				margin-bottom: 4px;
+			}
+			a.plus {
+				background-color: #60af60;
+				border: 1px solid #408f40;
+				color: white;
+				font-size: 80%;
+				height: 15px;
+				line-height: 15px;
+			}
+			a.plus:hover {
+				background-color: #70bf70;
+			}
+			div.joinbox {
+				background-color: white;
+				border: 1px solid #808080;
+				padding: 10px;
+				position: fixed;
+				left: 10px;
+				height: 40px;
+				bottom: 10px;
+				line-height: 40px;
+			}
+			div.joinbox a.join {
+				background-color: #60af60;
+				border: 1px solid #408f40;
+				color: white;
+			}
+		</style>
+	</head>
+	<body onload="logged_in();isAdmin();participating();organized()">
+		<!-- Standard Header -->
+		<div class="headerbar">
+			<!-- Big Bold Page Title -->
+			<span class="title">Quetzalcoatl Qalendar</span>
+			<!-- TODO: Insert user box -->
+			<div class="login">
+                <div class="title">Profile</div>
+                Welcome <b id="_username"><i>Loading...</i></b> <br>
+                <a margin-top: 3px" class="button" onclick="do_logout()">Log Out</a>
+            </div>
+		</div>
+		<!-- Page Contents -->
+		<div class="content">
+			<div class="header">Main Page</div>
+
+			<table class="schedt">
+				<tr class="th1">
+					<td colspan=2>Your Schedules <a class="button plus" href="create.html">Create</a></td>
+				</tr>
+				<tr class="th1">
+					
+				</tr>
+				<tr class="th2">
+					<td>Organized</td>
+					<td>Participating</td>
+				</tr>
+				<tr style="text-align: center">
+					<td id="organized"></td>
+					<td id="participation"></td>
+				</tr>				
+			</table><br>
+			<div id="sysAdminArea" style="visibility:hidden">
+				<a class="button" href="sysadmin.html"> System Admin Zone</a>
+			</div>
+		</div>
+		<!-- Message Tray -->
+		<div class="messagetray" id="message_tray">
+				<!-- Messages go here -->
+		</div>
+		<!-- "Join a schedule" box -->
+		<div class="joinbox">
+			Join a Schedule <input type="text" id="toJoin"></input><a class="button join" onclick="addpart2()">Join</a>
+			<a class="button" href="infopage.html" style="appearance:button">More info</a>
+		</div>
+		<div>
+		</div>
+	</body>
+</html>

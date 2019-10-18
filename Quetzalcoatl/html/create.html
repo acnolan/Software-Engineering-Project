@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<meta charset="utf-8"/>
+<html>
+	<head>
+		<title>Quetzalcoatl Qalendar - Create New Schedule</title>
+		<link rel="stylesheet" href="general.css" />
+		<link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i" rel="stylesheet">
+		<script src="create.js"></script>
+		<script src="general.js"></script>
+		<script>
+			function do_a_submitty_boy() {
+				// Get the values
+				var organizerId = "test_web"; // TODO: Change this
+				var st = new Date("2018-11-28 " + document.getElementById("startTime").value);
+				var startTime = (st.getHours() * 60) + st.getMinutes();
+				var et = new Date("2018-11-28 " + document.getElementById("endTime").value);
+				console.log(et);
+				var endTime = (et.getHours() * 60) + et.getMinutes();
+				var sl = document.getElementById("timeSlot");
+				var slotLength = sl.options[sl.selectedIndex].value;
+				var startDate = document.getElementById("startDay").value;
+				var endDate = document.getElementById("endDay").value;
+				// Invoke the function
+				create(organizerId, startTime, endTime, slotLength, startDate, endDate);
+			}
+		</script>
+		<style>
+			.content {
+				padding: 15px;
+				border: 1px solid #808080;
+				border-radius: 3px;
+				background-color: white;
+			}
+			.nstable input,select {
+				width: 125px;
+			}
+		</style>
+	</head>
+	<body>
+		<!-- Standard Header -->
+		<div class="headerbar">
+			<!-- Big Bold Page Title -->
+			<span class="title">Quetzalcoatl Qalendar</span>
+			<!-- User Box -->
+			<div class="login">
+				<div class="title">Profile</div>
+				Welcome <b id="_username">Loading...</b> <br>
+				<a margin-top: 3px" class="button" onclick="do_logout()">Log Out</a>
+			</div>
+			<!-- Page Contents -->
+			<div class="content">
+				<div class="header">Create Schedule</div>
+				<table class="nstable">
+					<tr>
+						<td>Name:</td>
+						<td><input type="text" id="schName" placeholder="ScheduleName"/></td>
+					</tr>
+					<tr>
+						<td>Start Date:</td>
+						<td><input type="date" id="startDay" value="2018-11-20" placeholder="Start Day"/></td>
+						<td>End Date:</td>
+						<td><input type="date" id="endDay" value="2018-11-29" placeholder="End Day"/></td>
+					</tr>
+					<tr>
+						<td>Start Time:</td>
+						<td><input type="time" id="startTime" value="" placeholder="Start Time"/></td>
+						<td>End Time:</td>
+						<td><input type="time" id="endTime" value="" placeholder="End Time"/></td>
+					</tr>
+					<tr>
+						<td>Slot Size:</td>
+						<td>
+							<select id="timeSlot">
+								<option value="10">10 minutes</option>
+								<option value="15">15 minutes</option>
+								<option value="20">20 minutes</option>
+								<option value="30">30 minutes</option>
+								<option value="60">60 minutes</option>
+							</select>
+						</td>
+						<td colspan=2 style="text-align: center">
+							<a style="width: 90px" class="button" onclick="do_a_submitty_boy()">Submit</a>
+							<a style="width: 90px" class="button" href="mainpage.html" style="appearance:button">Cancel</a>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<!-- Message Tray -->
+		<div class="messagetray" id="message_tray">
+				<!-- Messages go here -->
+		</div>
+
+	</body>
+</html>

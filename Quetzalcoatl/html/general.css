@@ -1,0 +1,202 @@
+/* Welcome to the general style sheet!
+ *
+ * The styles defined in this document should be applicable to any page in the
+ * application. */
+
+/* Use a nicer font by default */
+html {
+    font-family: 'Roboto';
+    line-height: 20px; /* Required due to vertical alignment bug */
+    min-height: 100vh; /* Required for background image */
+    background: linear-gradient(135deg, #ff0000 0%,#ff7f00 10%,#ffff00 30%,#00ff00 45%,#00ffff 59%,#0000ff 73%,#ff00ff 92%);
+}
+
+/* Button Style */
+a.button {
+    border: 1px solid #808080;
+    border-radius: 2px;
+    background-color: #e5e5e5;
+    padding: 5px;
+    transition: background-color .1s;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: pointer;
+    text-decoration: none;
+    color: #252525;
+    height: 20px;
+    display: inline-block;
+    line-height: 20px;
+}
+a.button:hover {
+    background-color: #c5c5c5;
+}
+
+/* Input Field Style */
+input {
+    border: 1px solid #808080;
+    border-radius: 2px;
+    background-color: white;
+    padding: 5px;
+    height: 20px;
+    display: inline-block;
+    line-height: 20px;
+    vertical-align: bottom;
+    margin: 2px;
+}
+
+/* Select Field Style */
+select {
+    border: 1px solid #808080;
+    border-radius: 2px;
+    background-color: #e5e5e5;
+    padding: 5px;
+    transition: background-color .1s;
+    color: #252525;
+    height: 20px;
+    display: inline-block;
+    line-height: 20px;
+    box-sizing: content-box;
+}
+select:hover {
+    background-color: #c5c5c5;
+}
+
+/* Fixed Page Header */
+div.headerbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    border-bottom: 1px solid #808080;
+    background-color: white;
+    padding: 5px 20px;
+    line-height: normal;
+    font-family: 'Roboto';
+    font-weight: 300;
+}
+div.headerbar>span.title {
+    font-size: 350%;
+}
+div.headerbar>div.login {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: white;
+    border: 1px solid #808080;
+    border-radius: 3px;
+    padding: 5px;
+}
+div.headerbar>div.signup{
+    position: fixed;
+    top: 200px;
+    right:20px;
+    background-color: white;
+    border: 1px solid #808080;
+    border-radius: 3px;
+    padding: 5px;
+}
+div.headerbar>div.signup>div.title {
+    text-align: center;
+    font-size: 120%;
+    padding: 5px;
+}
+div.headerbar>div.signup>a.button {
+    width: calc(100% - 12px);
+    text-align: center;
+}
+div.headerbar>div.login>div.title {
+    text-align: center;
+    font-size: 120%;
+    padding: 5px;
+}
+div.headerbar>div.login>a.button {
+    width: calc(100% - 12px);
+    text-align: center;
+}
+
+/* Automaticly Centered Content Box */
+div.content {
+    position: fixed;
+    top: 45vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+    max-height: calc(100vh - 300px);
+    overflow-y: scroll;
+}
+div.content>div.header {
+    font-family: 'Roboto';
+    font-weight: 300;
+    font-size: 200%;
+    margin-bottom: 10px;
+}
+
+/* Message Box */
+div.messagetray {
+    position: fixed;
+    top: 50px;
+    left: 50vw;
+    transform: translateX(-50%);
+}
+
+/* Messages */
+div.messagetray>div.message {
+    min-width: 700px;
+    width: 50vw;
+    padding: 15px;
+    border: 1px solid #808080;
+    border-radius: 3px;
+    background-color: white;
+    animation-name: message_animation;
+    animation-duration: 3s;
+    text-align: center;
+    margin-bottom: 15px;
+}
+div.messagetray>div.error {
+    background-color: #ffa0a0;
+    border: 1px solid #cf8080;
+}
+div.messagetray>div.success {
+    background-color: #a0ffa0;
+    border: 1px solid #80cf80;
+}
+
+/* Message Animation */
+@keyframes message_animation {
+    0% {
+        transform: translateY(-1000%);
+    }
+    10% {
+        transform: translateY(0);
+    }
+    90% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-1000%);
+    }
+}
+
+/* Button Tray */
+div.buttontray {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 15px;
+    border: 1px solid #808080;
+    background-color: white;
+    border-radius: 2px;
+}
+
+div.filtertray {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    padding: 15px;
+    border: 1px solid #808080;
+    background-color: white;
+    border-radius: 2px;
+}

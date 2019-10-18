@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<meta charset="utf-8"/>
+<html>
+	<head>
+		<title>Quetzalcoatl Qalendar - System Admin</title>
+		<link rel="stylesheet" href="general.css" />
+		<link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i" rel="stylesheet">
+		<script src="create.js"></script>
+		<script src="general.js"></script>
+		<script src="sysadmin.js"></script>
+		<script type="text/javascript" src="https://cdn.emailjs.com/sdk/2.3.2/email.min.js"></script>
+    	<script type="text/javascript">
+        	(function(){
+           		emailjs.init("user_ii7iN5pWyqttAJqArT7RF");
+    		})();
+    	</script>
+		<script>
+			Array.prototype.randomElement = function () {
+    			return this[Math.floor(Math.random() * this.length)]
+			}
+			var emails = [];
+			emails["Peter"] = "pcguglielmino@wpi.edu";
+			emails["Nick"] = "nhhollander@wpi.edu";
+			emails["Andrew"] = "acnolan@wpi.edu";
+			emails["Prat"] = "ppremsankar@wpi.edu";
+			emails["Professor Heineman"] = "heineman@wpi.edu"
+    		var nouns = ["AWS", "delivery food", "call center", "lambda function", "RDS", "S3 Bucket", "8 pm meeting times", "sticky notes", "MySQL", "API Gateway", "SwaggerAPI", "block chain", "5 points back on our API", "Quetzalcoatl", "JavaScript", "HTML", "EBC", "natural recursion", "advent of code"];
+    		var adjectives = ["Aztec", "saucy", "spicy", "nocturnal", "Puerto Rican", "exhausted", "radical", "mathematical", "satirical", "sticky", "explosive", "hostile", "enraged", "deceitful", "aquatic", "interstellar", "analytical", "tubular", "restricted", "block-chained", "artificial", "deviant", "slow"];
+    		var verbs_present = ["operate", "asphyxiate", "graduate", "pass soft eng", "NR soft eng", "get 5 points back on our API", "call SNAP", "order takeout", "drop the lowest quiz", "win a free book"];
+    		var verbs_future = ["fly", "asphyxiate", "burn", "yeet", "take out", "merge conflict", "refuse to give 5 points back on our API", "delete", "forget to redeploy the API", "sue", "ban"];
+    		var adverbs = ["quickly", "angrily", "scrumptiously", "seductivly", "suggestivly", "enthusiatically", "wrongly", "triumphantly", "poorly", "bravely", "seldom"];
+    		var to_nouns = ["the ground", "the moon", "dust", "the bottom of the ocean", "the sun", "the gulags", "the block chain"];
+    		var template_params = {
+   				"user_email": "user_email_value",
+   				"to_name": "to_name_value",
+   				"noun_1": "noun_1_value",
+   				"adjective_1": "adjective_1_value",
+   				"adjective_2": "adjective_2_value",
+   				"noun_2": "noun_2_value",
+   				"verb_present": "verb_present_value",
+   				"adverb_1": "adverb_1_value",
+   				"verb_future": "verb_future_value",
+   				"noun_3": "noun_3_value"
+			}
+			
+			var service_id = "quetzalcalendar";
+			var template_id = "quetzalcalendar";
+			
+            function stupid_feature() {
+                // Get the number
+                var the_number = document.getElementById("view_from_hours").value;
+                // Check the number
+                if(the_number == 1) {
+                    document.getElementById("stupid_feature_number_eight_billion").innerText = "hour";
+                } else {
+                    document.getElementById("stupid_feature_number_eight_billion").innerText = "hours";
+                }
+            }
+            
+            function make_somebody_feel_bad() {
+                // Get the select
+                var select = document.getElementById("mean_email_target");
+                // Get the victim
+                var victim = select.options[select.selectedIndex].value;
+                success("Success: " + victim + " is now sad.  You monster.");
+                template_params.user_email = emails[victim];
+                template_params.noun_1 = nouns.randomElement();
+                template_params.adjective_1 = adjectives.randomElement();
+                template_params.adjective_2 = adjectives.randomElement();
+                template_params.noun_2 = nouns.randomElement();
+                template_params.verb_present = verbs_present.randomElement();
+                template_params.adverb_1 = adverbs.randomElement();
+                template_params.verb_future = verbs_future.randomElement();
+                template_params.noun_3 = to_nouns.randomElement();
+                template_params.to_name = victim;
+            	emailjs.send(service_id,template_id,template_params);
+            }
+
+		</script>
+		<style>
+			.content {
+				padding: 15px;
+				border: 1px solid #808080;
+				border-radius: 3px;
+				background-color: white;
+			}
+			.nstable input,select {
+				width: 125px;
+            }
+            .nstable td {
+                line-height: 36px;
+            }
+            #delete_older_than {
+                width: 50px;
+            }
+            #view_from_hours {
+                width: 60px;
+            }
+            #mean_email_target {
+                width: 70px;
+            }
+            #back {
+                position: fixed;
+                top: 10px;
+                right: 10px;
+            }
+		</style>
+	</head>
+	<body>
+		<!-- Standard Header -->
+		<div class="headerbar">
+			<!-- Big Bold Page Title -->
+			<span class="title">Quetzalcoatl Qalendar</span>
+			<!-- User Box -->
+			<div class="login">
+				<div class="title">Profile</div>
+				Welcome <b id="_username">Loading</b> <br>
+				<a style="margin-top: 3px" class="button" onclick="do_logout()">Log Out</a>
+			</div>
+			<!-- Page Contents -->
+			<div class="content">
+                <div class="header">System Admin</div>
+                <a id="back" class="button" href="mainpage.html">Back</a>
+				<table class="nstable">
+					<tr>
+						<td>
+                            Delete schedules more than
+                            <input type="number" value="1" min="0" max="9999" id="delete_older_than" placeholder="days" />
+                            days old
+                        </td>
+                        <td>
+                            <a class="button" onclick="deleteSchedules()">Delete</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            View activity from previous
+                            <input type="number" value="1" min="0" max="9999" id="view_from_hours" placeholder="hours" onchange="stupid_feature()"/>
+                            <span id="stupid_feature_number_eight_billion">hours</span>
+                        </td>
+                        <td>
+                            <a class="button" onclick="getSchedules()">View</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Send a mean email to
+                            <select id="mean_email_target">
+                                <option id="Peter" value = "Peter">Peter</option>
+                                <option id="Nick" value = "Nick">Nick</option>
+                                <option id="Andrew" value = "Andrew">Andrew</option>
+                                <option id="Prat" value = "Prat">Prat</option>
+                                <option id="Professor Heineman" value = "Professor Heineman">Professor Heineman</option>
+                            </select>
+                        </td>
+                        <td>
+                            <a class="button" onclick="make_somebody_feel_bad()">Send</a>
+                        </td>
+                    </tr>
+				</table>
+				<div id=results></div>				
+			</div>
+		</div>
+		<!-- Message Tray -->
+		<div class="messagetray" id="message_tray">
+				<!-- Messages go here -->
+		</div>
+		
+
+	</body>
+</html>
+
+
+<body>
+
+</body>
+</html>

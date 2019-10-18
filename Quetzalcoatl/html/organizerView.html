@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<meta charset="utf-8"/>
+<html>
+    <head>
+        <title>Organizer View</title>
+        <script src="organizerView.js"> </script>
+        <link rel="stylesheet" href="general.css"></link>
+        <link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i" rel="stylesheet"> 
+        <script src="general.js"></script>
+        <style>
+            table.calendar {
+                border: 1px solid #808080;
+                border-collapse: collapse;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+            table.calendar tr.header>td {
+                border-bottom: 1px solid #808080;
+                font-size: 115%;
+            }
+            table.calendar tr.header td .sub {
+                font-size: 60%;
+            }
+            table.calendar td {
+                text-align: center;
+                width: 130px;
+                height: 50px;
+                padding: 3px 5px;
+                background-color: white;
+                transition: box-shadow .15s;
+                position: relative;
+                z-index: -1;
+                overflow: hidden;
+            }
+            table.calendar tr:not(:first-child) td:hover {
+                
+            }
+            table.calendar tr td[hoverable="true"]:hover {
+                box-shadow: inset 0px 0px 30px 20px rgba(0,0,0,0.10);
+            }
+            table.calendar td:not(:last-child) {
+                border-right: 1px solid #808080;
+            }
+            table.calendar tr.sched td {
+                font-size: 100%;
+            }
+            table.calendar tr.loading td {
+                text-align: center;
+                font-style: italic;
+                font-size: 200%;
+                font-family: "Roboto";
+                font-weight: 300;
+            }
+            table.calendar td.blocked {
+                background-color: #ffafaf;
+            }
+            table.calendar td.reserved{
+            	background-color: #fff538;
+            }
+            table.calendar td.free {
+                background-color: #cfffcf;
+            }
+            table.calendar td.undefined {
+                background: repeating-linear-gradient(
+                    45deg,
+                    #ffffaa,
+                    #ffffaa 10px,
+                    #fafaaa 10px,
+                    #fafaaa 20px);
+                color: #909090;
+            }
+            table.calendar td .selcheck {
+                position: absolute;
+                top: -35px;
+                right: -35px;
+                background: linear-gradient(45deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 50%, #00aa00 51%,#00aa00 100%);
+                width: 35px;
+                height: 35px;
+                color: white;
+                padding: 0;
+                text-align: right;
+                letter-spacing: 3px;
+                transition: top .3s, right .3s;
+            }
+            table.calendar td .selcheck::after {
+                content: '✓';
+            }
+            table.calendar td[selected="true"] .selcheck{
+                top: -1px;
+                right: -1px;
+            }
+            table.calendar td.out_of_range {
+                background-color: white;
+            }
+            table.calendar td.weeknav {
+                height: 25px;
+                border-right: 1px solid #808080;
+                border-bottom: 1px solid #E0E0E0;
+                font-size: 12pt !important;
+            }
+            table.calendar tr:nth-child(2) .weeknav {
+                border-bottom: 1px solid #808080;
+            }
+            .new_modal_box {
+                background-color: rgba(0,0,0,.35);
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+            }
+            .new_modal_box>.window {
+                transform: translate(-50%, -50%);
+                position: fixed;
+                top: 50vh;
+                left: 50vw;
+                width: 600px;
+                height: 400px;
+                background-color: white;
+                border: 1px solid #808080;
+                padding: 15px;
+                text-align: center;
+            }
+            .new_modal_box>.window>.header {
+                font-size: 300%;
+                text-align: center;
+                font-family: 'Roboto';
+                font-weight: 300;
+                margin-bottom: 10px;
+            }
+            [hoverable="true"] {
+                cursor: pointer;
+            }
+            #dcmodal {
+                transform: translateY(-100vh);
+                transition: transform .3s;
+            }
+            #dcmodal[onscreen='true'] {
+                transform: translateY(0);
+            }
+            .content {
+                position: fixed;
+                top: 50vh;
+                left: 50vw;
+                transform: translate(-50%, -50%);
+            }
+        </style>
+        <script>
+            // Date used
+            var date = undefined;
+            var master_ultra_date = undefined;
+            // Schedule ID
+            var sched_id = 0;
+            // Get monday
+            function get_monday() {
+                // Get the base date
+                var raw_date_input = get_urlparam("date");
+                if(raw_date_input != "") {
+                    date = new Date(raw_date_input);
+                } else {
+                    date = new Date();
+                }
+                // Get the day
+                var day = date.getDay();
+                // Make monday
+                date.setDate(date.getDate() - day);
+                date.setHours(0);
+                date.setMinutes(0);
+                date.setSeconds(0);
+                date.setMilliseconds(0);
+                // Generate
+                //var gen = new Date(raw_date_input);
+                //for(var i = 0; i < 5; i++) {
+                //    document.getElementById("d" + i).innerHTML = gen.getFullYear() + "-" + (gen.getMonth() + 1) + "-" + (gen.getDay() + 1);
+                //    gen.setDate(gen.getDate() + 1);
+                //}
+                master_ultra_date = date;
+            }
+            get_monday();
+            // Schedule data raw
+            var schedule_data = undefined;
+            // Setup function
+            function setup() {
+                // Get the date plus 5 days
+                var date2 = new Date(date);
+                console.log("Selected Range: ", date, date2);
+                date2.setDate(date2.getDate() + 5);
+                sched_id = Number(get_urlparam("id"));
+                show_week_schedule(Number(get_urlparam("id")), date, date2);
+                loadUsers();
+            }
+            // Slot click handler
+            function handle_slot_click(e) {
+                console.log(e);
+                if(e.target.getAttribute("selected") == "true") {
+                    e.target.setAttribute("selected", "false");
+                } else {
+                    e.target.setAttribute("selected", "true");
+                }
+            }
+            // Parse schedule data
+            function parse(data, duration) {
+                // Delete old rows
+                var old_rows = document.querySelectorAll("table.calendar tr:not([preserve='true'])");
+                for(var i = 0; i < old_rows.length; i++) {
+                    old_rows[i].parentElement.removeChild(old_rows[i]);
+                }
+                // Minutes per minute
+                /*var duration = 98123508912509;
+                // Determine the duration of a meeting
+                for(var a = 0; a < data.length; a++) {
+                    for(var b = a + 1; b < data.length; b++) {
+                        // Compare the dates
+                        if(data[a].startDate.day == data[b].startDate.day) {
+                            if(data[a].startDate.mon == data[b].startDate.mon) {
+                                if(data[a].startDate.year == data[b].startDate.year) {
+                                    // Compare the times
+                                    var diff = Math.abs(data[a].startTime - data[b].startTime);
+                                    if(diff < duration) {
+                                        duration = diff;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }*/
+                // Calculate number of rows
+                var row_count = 0;
+                // Calculation min and max
+                var calc_min = 9999;
+                var calc_max = 0;
+                // Determine the number of rows
+                for(var i = 0; i < data.length; i++) {
+                    // Check
+                    if(data[i].startTime < calc_min) {
+                        calc_min = data[i].startTime;
+                    } else if(data[i].startTime > calc_max) {
+                        calc_max = data[i].startTime;
+                    }
+                }
+                // Just load it instead
+                calc_min = sched_data.starttime;
+                calc_max = sched_data.endtime;
+                // Determine rows
+                row_count = ((calc_max - calc_min) / duration);
+                // Debug
+                console.log("There are ", row_count, " meetings that are ", duration, " minutes");
+                // Get the table
+                var table = document.querySelector("table.calendar");
+                // Create the rows
+                if(row_count == 0) { row_count = 1; }
+                for(var r = 0; r < row_count; r++) {
+                    var row = document.createElement("tr");
+                    row.cellName = "sched";
+                    // Create the time cell
+                    var tot_mins = (r * duration) + calc_min;
+                    var ct_hours = Math.floor(tot_mins / 60);
+                    var ct_mins = tot_mins % 60;
+                    var tcell = document.createElement("td");
+                    tcell.className = "timeSlot";
+                    tcell.innerText = ("" + ct_hours).padStart(2,'0') + ":" + ("" + ct_mins).padStart(2,'0');
+                    tcell.addEventListener("click", select_row);
+                    row.appendChild(tcell);
+                    // Create the cells
+                    for(var c = 0; c < 5; c++) {
+                        var cell = document.createElement("td");
+                        cell.setAttribute("row", r);
+                        cell.setAttribute("col", c);
+                        cell.setAttribute("hoverable", "true");
+                        cell.setAttribute("isSlot", "true");
+                        cell.className = "undefined";
+                        cell.addEventListener("click", handle_slot_click);
+                        // Create the text container
+                        var tc = document.createElement("span");
+                        tc.innerText = "Undefined";
+                        cell.appendChild(tc);
+                        // Create the selection
+                        var check = document.createElement("div");
+                        check.className = "selcheck";
+                        cell.appendChild(check);
+                        row.appendChild(cell);
+                    }
+                    // Append to table
+                    table.appendChild(row);
+                }
+                // Apply the busy and free entries
+                for(var i = 0; i < data.length; i++) {
+                    // Calculate row
+                    var d = new Date(data[i].datetime);
+                    var row = ((d.getHours() * 60 + d.getMinutes()) - calc_min) / duration;
+                    // Construct date
+                    var date = d;
+                    // Calculate column
+                    var col = date.getDay() - 1;
+                    // Get the column
+                    console.log(data[i],row,col,date.getDay());
+                    var cell = document.querySelector("td[row=\"" + row + "\"][col=\"" + col + "\"]");
+                    // Set the ID
+                    console.log(row, col);
+                    cell.setAttribute("slot_id", data[i].id);
+                    // Check
+                    if(data[i].bookedby == -1) {
+                        // Set the property
+                        cell.className = "blocked";
+                        cell.children[0].innerText = "Blocked";
+                    } else if(data[i].bookedby == 0) {
+                        // Set the property
+                        cell.className = "free";
+                        cell.children[0].innerText = "Free";
+                    } else {
+                    	cell.className = "reserved";
+                    	cell.children[0].innerText = "Booked by " + data[i].username;
+                    }
+                }
+                // Remove undefined columns
+                for(var i = 0; i < 5; i++) {
+                    // Get slots in column
+                    var slots = document.querySelectorAll("table.calendar td[col='" + i + "']");
+                    var is_undefined = true;
+                    for(var a = 0; a < slots.length; a++) {
+                        if(slots[a].className != "undefined") {
+                            is_undefined = false;
+                            break;
+                        }
+                    }
+                    // Check
+                    if(is_undefined) {
+                        // Make the top cell a big boy
+                        slots[0].setAttribute("rowspan", row_count);
+                        slots[0].setAttribute("colspan", 1);
+                        slots[0].className = "out_of_range";
+                        slots[0].innerHTML = "This date is out of bounds!<br>Click here to extend schedule";
+                        slots[0].addEventListener("click", show_date_changer);
+                        for(var a = 1; a < slots.length; a++) {
+                            slots[a].parentElement.removeChild(slots[a]);
+                        }
+                    }
+                }
+                // Merge undefineds
+                var last_slot = document.querySelector("table.calendar td[col='0']")
+                for(var i = 1; i < 5; i++) {
+                    // Get the comparison column
+                    var comp = document.querySelector("table.calendar td[col='" + (i) + "']");
+                    if(last_slot.className == "out_of_range" && comp.className == "out_of_range") {
+                        //c1.colspan += 1;
+                        last_slot.setAttribute("colspan", Number(last_slot.getAttribute("colspan")) + 1);
+                        comp.parentElement.removeChild(comp);
+                    } else {
+                        last_slot = comp;
+                    }
+                }
+                // Calculate the date range
+                var earliest = new Date(2500, 0, 0, 0, 0, 0, 0);
+                for(var i = 0; i < data.length; i++) {
+                    // Get the data
+                    //var date = new Date(data[i].startDate.year, data[i].startDate.mon, data[i].startDate.day, 0, 0, 0, 0);
+                    // Compare
+                    //if(date < earliest) {
+                    //    earliest = date;
+                    //}
+                }
+                // Generate dates
+                //for(var i = 0; i < 5; i++) {
+                //    var date = earliest.getFullYear() + "-" + earliest.getMonth() + "-" + earliest.getDate();
+                //    document.getElementById("d" + i).innerText = date;
+                //    earliest.setDate(earliest.getDate() + 1);
+                //}
+                // Generate dates
+                var gen = new Date(master_ultra_date);
+                for(var i = 0; i < 5; i++) {
+                    gen.setDate(gen.getDate() + 1);
+                    document.getElementById("d" + i).innerHTML = gen.getFullYear() + "-" + (gen.getMonth() + 1) + "-" + (gen.getDate());
+                }
+            }
+            // Free selected slots
+            function free_sel() {
+                var slots = document.querySelectorAll("table.calendar td[selected='true']");
+                var slotIDs = [];
+                for(var i = 0; i < slots.length; i++) {
+                    slotIDs.push(slots[i].getAttribute("slot_id"));
+                }  
+                open_time_slot(slotIDs);
+            }
+            // Block selected slots
+            function block_sel() {
+                var slots = document.querySelectorAll("table.calendar td[selected='true']");
+                var slotIDs = [];
+                for(var i = 0; i < slots.length; i++) {
+                    slotIDs.push(slots[i].getAttribute("slot_id"));
+                } 
+                close_time_slot(slotIDs);
+            }
+            
+            function delete_schedule() {
+            	var sched_id = Number(get_urlparam("id"));
+            	delete_sch(sched_id);
+            }
+            // Select a column
+            function select_col(e) {
+                var num = Number(e.getAttribute("number")) ;
+                var slots = document.querySelectorAll("table.calendar tr:not(:first-child) td:nth-child(" + num + ")");
+                var slots = document.querySelectorAll("table.calendar td[col='" + num + "'][isSlot='true']");
+                // Check status
+                var stat = true;
+                for(var i = 0; i < slots.length; i++) {
+                    if(slots[i].getAttribute("selected") != "true") {
+                        stat = false;
+                        console.log(slots[i]);
+                        break;
+                    }
+                }
+                // Update status
+                for(var i = 0; i < slots.length; i++) {
+                    slots[i].setAttribute("selected", stat ? "false" : "true");
+                }
+            }
+            // Select a row
+            function select_row(e) {
+                var slots = e.target.parentElement.querySelectorAll("[row]");
+                // Check status
+                var stat = true;
+                for(var i = 0; i < slots.length; i++) {
+                    if(slots[i].getAttribute("selected") != "true") {
+                        stat = false;
+                        break;
+                    }
+                }
+                // Update status
+                for(var i = 0; i < slots.length; i++) {
+                    slots[i].setAttribute("selected", stat ? "false" : "true");
+                }
+            }
+            // Show the date changer
+            function show_date_changer() {
+                document.getElementById("dcmodal").setAttribute("onscreen","true");
+            }
+            // Hide the date changer
+            function hide_date_changer() {
+                document.getElementById("dcmodal").setAttribute("onscreen","false");
+            }
+            function last_week() {
+                // Get the new date
+                var ndate = new Date(date);
+                ndate.setDate(ndate.getDate() - 4);
+                console.log("Old", date, "New", ndate, "masterUltra", master_ultra_date);
+                var datestring = ndate.getFullYear() + "-" + (ndate.getMonth() + 1) + "-" + ("00" + ndate.getDate()).substr(-2,2);
+                console.log(datestring);
+                // Update the url
+                document.location = "organizerView.html?id=" + sched_id + "&date=" + datestring;
+            }
+            function next_week() {
+                // Get the new date
+                var ndate = new Date(date);
+                ndate.setDate(ndate.getDate() + 10);
+                console.log("Old", date, "New", ndate);
+                var datestring = ndate.getFullYear() + "-" + (ndate.getMonth() + 1) + "-" + ("00" + ndate.getDate()).substr(-2,2);
+                console.log(datestring);
+                // Update the url
+                document.location = "organizerView.html?id=" + sched_id + "&date=" + datestring;
+            }
+        </script>
+    </head>
+    <body onload="setup()">
+        <!-- Standard Header -->
+        <div class="headerbar">
+            <!-- Big Bold Page Title -->
+            <span class="title">Quetzalcoatl Qalendar</span>
+            <!-- Login Box -->
+            <div class="login">
+                <div class="title">Profile</div>
+                Welcome <b id="_username">Loading...</b> <br>
+                <a style="margin-top: 3px" class="button" onclick="do_logout()">Log Out</a>
+            </div>
+        </div>
+        <!-- Page Contents -->
+        <div class="content">
+            <table class="calendar">
+                <tr preserve="true" class="header">
+                    <td hoverable="true" class="weeknav" onclick="last_week()">&#xab; Last Week &#xab;</td>
+                    <td number="0" rowspan=2 onclick="select_col(this)">MON<div class="sub" id="d0"><i>Loading...</i></div></td>
+                    <td number="1" rowspan=2 onclick="select_col(this)">TUES<div class="sub" id="d1"><i>Loading...</i></div></td>
+                    <td number="2" rowspan=2 onclick="select_col(this)">WED<div class="sub" id="d2"><i>Loading...</i></div></td>
+                    <td number="3" rowspan=2 onclick="select_col(this)">THUR<div class="sub" id="d3"><i>Loading...</i></div></td>
+                    <td number="4" rowspan=2 onclick="select_col(this)">FRI<div class="sub" id="d4"><i>Loading...</i></div></td>
+                </tr>
+                <tr preserve="true"><td hoverable="true" class="weeknav" onclick="next_week()">&#xbb; Next Week &#xbb;</td></tr>
+                <tr class="loading">
+                    <td colspan=6>Loading...</td>
+                </tr>
+            </table>
+        </div>
+        <!-- Old Modal - Ignore this, it's kind of shit -->
+        <div class="new_modal_box" id="dcmodal" onclick="hide_date_changer()">
+        <div class="window" onclick="event.stopPropagation()">
+            <div class="header">Adjust Schedule Bounds</div>
+            Set the
+            <select id="bound_update_select">
+                <option value="1">Starting</option>
+                <option value="2">Ending</option>
+            </select>
+            date to
+            <input type="date" id="bound_update_date" /><br>
+            <a class="button" onclick="update_bounds()">Update</a>
+        </div>
+        </div>
+        <!-- Message Tray -->
+		<div class="messagetray" id="message_tray">
+				<!-- Messages go here -->
+        </div>
+        <!-- Button Tray -->
+        <div class="buttontray">
+        	<div>
+            	<a class="button" onclick="free_sel()">Free Selected</a>
+            	<a class="button" onclick="block_sel()">Block Selected</a>
+            	<a class="button" onclick="free_sel()">Cancel Meeting</a>
+            	<a class="button" onclick="delete_schedule()" href="mainpage.html">Delete Schedule</a>
+            	<a class="button" href="mainpage.html" style="appearance:button">Back</a>
+            </div>
+            </br>
+            <div>
+            	<select id="toAdd">
+				</select>
+            	<a class="button" onclick="add_participant()">Add Participant</a>
+            	<span id="partDiv"></span>
+            </div>
+        </div>
+    </body>
+</html>
